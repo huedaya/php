@@ -1,9 +1,9 @@
-FROM composer:2 AS composer
-COPY --from=composer /usr/bin/composer /usr/local/bin/compose
-
 FROM php:8.0-apache
 
 WORKDIR /app
+
+#-----  Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #-----  Install unzip utility and libs needed by zip PHP extension
 RUN apt-get update --fix-missing && apt-get install -y zlib1g-dev libzip-dev zip unzip libicu-dev git g++
