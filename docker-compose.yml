@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: ${APP_CONTAINER_NAME}
+    volumes:
+      - ./:/app
+      - ~/.composer/auth.json:/root/.composer/auth.json
+      - composer_cache:/root/.composer/cache
+      - yarn_cache:/usr/local/share/.cache/yarn/v6
+    ports:
+      - ${APP_HTTP_PORT}:80
+      - ${APP_HTTPS_PORT}:443
+    networks:
+      - local
+      - proxy
+
+  db:
+    image: mariadb
+    container_name: ${DB_HOST}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TIMEZONE}
+    ports:
+      - ${DB_HOST_PORT}:${DB_CONTAINER_PORT}
+    networks:
+      - local
+    volumes:
+      - db-data:/var/lib/mysql
+    command: mysqld --default-storage-engine=MyISAM
+
+networks:
+  local:
+  proxy:
+    external: true
+
+volumes:
+  db-data:
+  composer_cache:
+  yarn_cache:
